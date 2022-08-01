@@ -135,7 +135,7 @@ router.get("/users/current/reviews", requireAuth, async (req, res) => {
       "id",
       "userId",
       "spotId",
-      "revies",
+      "review",
       "stars",
       "createdAt",
       "updatedAt",
