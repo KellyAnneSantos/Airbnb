@@ -122,6 +122,64 @@ router.get("/:spotId", async (req, res) => {
   res.json(spots);
 });
 
+router.put("/:spotId", requireAuth, validateSpot, async (req, res) => {
+  const { user } = req;
+  let { address, city, state, country, lat, lng, name, description, price } =
+    req.body;
+  const { spotId } = req.params;
+
+  const spot = await Spot.findByPk(spotId);
+
+  if (!spot) {
+    res.status(404);
+    return res.json({
+      message: "Spot couldn't be found",
+      statusCode: 404,
+    });
+  }
+
+  if (spot.ownerId === user.id) {
+    const updatedSpot = await spot.update({
+      address,
+      city,
+      state,
+      country,
+      lat,
+      lng,
+      name,
+      description,
+      price,
+    });
+
+    let id = updatedSpot.id;
+    let ownerId = updatedSpot.ownerId;
+    let createdAt = updatedSpot.createdAt;
+    let updatedAt = updatedSpot.updatedAt;
+
+    return res.json({
+      id,
+      ownerId,
+      address,
+      city,
+      state,
+      country,
+      lat,
+      lng,
+      name,
+      description,
+      price,
+      createdAt,
+      updatedAt,
+    });
+  } else {
+    res.status(403);
+    return res.json({
+      message: "Forbidden",
+      statusCode: 403,
+    });
+  }
+});
+
 router.get("/", async (req, res) => {
   const Spots = await Spot.findAll({
     include: [
