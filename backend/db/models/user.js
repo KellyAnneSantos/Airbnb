@@ -5,11 +5,11 @@ const bcrypt = require("bcryptjs");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     toSafeObject() {
-      const { id, username, email } = this; // context will be the User instance
-      return { id, username, email };
+      const { id, firstName, lastName, username, email } = this; // context will be the User instance
+      return { id, firstName, lastName, email, username };
     }
     validatePassword(password) {
-      return bcrypt.compareSync(password, this.hashedPassword.toString());
+      return bcrypt.compareSync(password, this.password.toString());
     }
     static getCurrentUserById(id) {
       return User.scope("currentUser").findByPk(id);
@@ -28,25 +28,42 @@ module.exports = (sequelize, DataTypes) => {
         return await User.scope("currentUser").findByPk(user.id);
       }
     }
-    static async signup({ username, email, password }) {
+    static async signup({ firstName, lastName, username, email, password }) {
       const hashedPassword = bcrypt.hashSync(password);
       const user = await User.create({
+        firstName,
+        lastName,
         username,
         email,
-        hashedPassword,
+        password: hashedPassword,
       });
       return await User.scope("currentUser").findByPk(user.id);
     }
     static associate(models) {
-      // define association here
+      User.hasMany(models.Spot, { foreignKey: "ownerId" });
+      User.hasMany(models.Booking, { foreignKey: "userId" });
+      User.hasMany(models.Review, { foreignKey: "userId" });
     }
   }
 
   User.init(
     {
+      firstName: {
+        type: DataTypes.STRING(30),
+        allowNull: false,
+        validate: {
+          len: [1, 30],
+        },
+      },
+      lastName: {
+        type: DataTypes.STRING(30),
+        allowNull: false,
+        validate: {
+          len: [1, 30],
+        },
+      },
       username: {
         type: DataTypes.STRING,
-        allowNull: false,
         validate: {
           len: [4, 30],
           isNotEmail(value) {
@@ -63,12 +80,15 @@ module.exports = (sequelize, DataTypes) => {
           len: [3, 256],
         },
       },
-      hashedPassword: {
+      password: {
         type: DataTypes.STRING.BINARY,
         allowNull: false,
         validate: {
           len: [60, 60],
         },
+      },
+      previewImage: {
+        type: DataTypes.STRING(256),
       },
     },
     {

@@ -1,0 +1,126 @@
+"use strict";
+
+const { Spot } = require("../models");
+
+const spots = [
+  {
+    ownerId: 1,
+    address: "test",
+    city: "Azua",
+    state: "Azua",
+    country: "Dominican Republic",
+    lat: 89.0,
+    lng: 89.0,
+    name: "Spot One",
+    description: "testtesttesttesttesttesttesttesttesttesttesttesttesttest",
+    price: 100,
+  },
+  {
+    ownerId: 2,
+    address: "test",
+    city: "Chiguiri Arriba",
+    state: "Cocle",
+    country: "Panama",
+    lat: 89.0,
+    lng: 89.0,
+    name: "Spot Two",
+    description: "testtesttesttesttesttesttesttesttesttesttesttesttesttest",
+    price: 100,
+  },
+  {
+    ownerId: 3,
+    address: "test",
+    city: "La Union",
+    state: "La Union",
+    country: "El Salvador",
+    lat: 89.0,
+    lng: 89.0,
+    name: "Spot Three",
+    description: "testtesttesttesttesttesttesttesttesttesttesttesttesttest",
+    price: 100,
+  },
+  {
+    ownerId: 4,
+    address: "test",
+    city: "Moscow",
+    state: "Moscow",
+    country: "Russia",
+    lat: 89.0,
+    lng: 89.0,
+    name: "Spot Four",
+    description: "testtesttesttesttesttesttesttesttesttesttesttesttesttest",
+    price: 100,
+  },
+  {
+    ownerId: 5,
+    address: "test",
+    city: "Brussels",
+    state: "Flanders",
+    country: "Belgium",
+    lat: 89.0,
+    lng: 89.0,
+    name: "Spot Five",
+    description: "testtesttesttesttesttesttesttesttesttesttesttesttesttest",
+    price: 100,
+  },
+  {
+    ownerId: 1,
+    address: "test",
+    city: "Xian",
+    state: "Xian",
+    country: "China",
+    lat: 89.0,
+    lng: 89.0,
+    name: "Spot Six",
+    description: "testtesttesttesttesttesttesttesttesttesttesttesttesttest",
+    price: 100,
+  },
+  {
+    ownerId: 2,
+    address: "test",
+    city: "Florence",
+    state: "Florence",
+    country: "Italy",
+    lat: 89.0,
+    lng: 89.0,
+    name: "Spot Seven",
+    description: "testtesttesttesttesttesttesttesttesttesttesttesttesttest",
+    price: 100,
+  },
+  {
+    ownerId: 3,
+    address: "test",
+    city: "Ankara",
+    state: "Ankara",
+    country: "Turkey",
+    lat: 89.0,
+    lng: 89.0,
+    name: "Spot Eight",
+    description: "testtesttesttesttesttesttesttesttesttesttesttesttesttest",
+    price: 100,
+  },
+  {
+    ownerId: 4,
+    address: "test",
+    city: "Cancun",
+    state: "Cancun",
+    country: "Mexico",
+    lat: 89.0,
+    lng: 89.0,
+    name: "Spot Nine",
+    description: "testtesttesttesttesttesttesttesttesttesttesttesttesttest",
+    price: 100,
+  },
+];
+
+module.exports = {
+  async up(queryInterface, Sequelize) {
+    await Spot.bulkCreate(spots, {
+      validate: true,
+    });
+  },
+
+  async down(queryInterface, Sequelize) {
+    await queryInterface.bulkDelete("Spots", null, {});
+  },
+};
