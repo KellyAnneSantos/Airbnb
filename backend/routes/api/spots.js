@@ -34,6 +34,48 @@ const validateSpot = [
   handleValidationErrors,
 ];
 
+router.post("/:spotId/images", requireAuth, async (req, res) => {
+  const { user } = req;
+  let { spotId } = req.params;
+  let { url } = req.body;
+
+  spotId = parseInt(spotId);
+
+  const spot = await Spot.findByPk(spotId);
+
+  if (!spot) {
+    res.status(404);
+    return res.json({
+      message: "Spot couldn't be found",
+      statusCode: 404,
+    });
+  }
+
+  if (spot.ownerId === user.Id) {
+    const newImage = await Image.create({
+      imageableId: spotId,
+      imageableType: "spot",
+      url,
+    });
+
+    let id = newImage.id;
+    imageableId = newImage.imageableId;
+    url = newImage.url;
+
+    return res.json({
+      id,
+      imageableId,
+      url,
+    });
+  } else {
+    res.status(403);
+    return res.json({
+      message: "Forbidden",
+      statusCode: 403,
+    });
+  }
+});
+
 router.get("/:spotId", async (req, res) => {
   const { spotId } = req.params;
 
