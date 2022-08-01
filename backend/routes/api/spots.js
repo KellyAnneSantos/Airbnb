@@ -34,6 +34,16 @@ const validateSpot = [
   handleValidationErrors,
 ];
 
+const validateReview = [
+  check("review")
+    .exists({ checkFalsy: true })
+    .withMessage("Review text is required"),
+  check("stars")
+    .isInt({ min: 1, max: 5 })
+    .withMessage("Stars must be an integer from 1 to 5"),
+  handleValidationErrors,
+];
+
 router.get("/:spotId/reviews", async (req, res) => {
   const { spotId } = req.params;
 
@@ -74,6 +84,66 @@ router.get("/:spotId/reviews", async (req, res) => {
     Reviews,
   });
 });
+
+router.post(
+  "/:spotId/reviews",
+  requireAuth,
+  validateReview,
+  async (req, res) => {
+    const { user } = req;
+    let { spotId } = req.params;
+    let { review, stars } = req.body;
+
+    spotId = parseInt(spotId);
+
+    const spot = await Spot.findByPk(spotId);
+
+    if (!spot) {
+      res.status(404);
+      return res.json({
+        message: "Spot couldn't be found",
+        statusCode: 404,
+      });
+    }
+
+    const reviews = await Review.findOne({
+      where: {
+        userId: user.id,
+        spotId,
+      },
+    });
+
+    if (!reviews) {
+      const newReview = await Review.create({
+        userId: user.id,
+        spotId,
+        review,
+        stars,
+      });
+
+      let id = newReview.id;
+      let userId = newReview.userId;
+      let createdAt = newReview.createdAt;
+      let updatedAt = newReview.updatedAt;
+
+      return res.json({
+        id,
+        userId,
+        spotId,
+        review,
+        stars,
+        createdAt,
+        updatedAt,
+      });
+    } else {
+      res.status(403);
+      return res.json({
+        message: "User already has a review for this spot",
+        statusCode: 403,
+      });
+    }
+  }
+);
 
 router.post("/:spotId/images", requireAuth, async (req, res) => {
   const { user } = req;
