@@ -147,4 +147,45 @@ router.get("/users/current/reviews", requireAuth, async (req, res) => {
   });
 });
 
+router.get("/users/current/bookings", requireAuth, async (req, res) => {
+  const { user } = req;
+
+  const Bookings = await Booking.findAll({
+    where: {
+      userId: user.id,
+    },
+    include: [
+      {
+        model: Spots,
+        as: "Spot",
+        attributes: [
+          "id",
+          "ownerId",
+          "address",
+          "city",
+          "state",
+          "country",
+          "lat",
+          "lng",
+          "name",
+          "price",
+        ],
+      },
+    ],
+    attributes: [
+      "id",
+      "spotId",
+      "userId",
+      "startDate",
+      "endDate",
+      "createdAt",
+      "updatedAt",
+    ],
+  });
+
+  return res.json({
+    Bookings,
+  });
+});
+
 module.exports = router;
