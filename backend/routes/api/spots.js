@@ -37,7 +37,7 @@ const validateSpot = [
 router.get("/:spotId/reviews", async (req, res) => {
   const { spotId } = req.params;
 
-  const spot = await Spot.findByPk(eventId);
+  const spot = await Spot.findByPk(spotId);
 
   if (!spot) {
     res.status(404);
