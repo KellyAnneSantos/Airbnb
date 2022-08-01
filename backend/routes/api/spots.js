@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
       "price",
       "createdAt",
       "updatedAt",
-      [sequelize.col("Image.url"), "previewImage"],
+      [sequelize.col("Images.url"), "previewImage"],
     ],
   });
   return res.json({
