@@ -8,7 +8,7 @@ const spotsRouter = require("./spots.js");
 
 router.use("/session", sessionRouter);
 
-router.use("/users", usersRouter);
+router.use(usersRouter);
 
 router.use("/spots", spotsRouter);
 
