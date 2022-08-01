@@ -2,7 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 
-const { Image, Spot, User, sequelize } = require("../../db/models");
+const { Image, Review, Spot, User, sequelize } = require("../../db/models");
 const { requireAuth } = require("../../utils/auth");
 const { check } = require("express-validator");
 const { handleValidationErrors } = require("../../utils/validation");
@@ -33,6 +33,47 @@ const validateSpot = [
     .withMessage("Price per day is required"),
   handleValidationErrors,
 ];
+
+router.get("/:spotId/reviews", async (req, res) => {
+  const { spotId } = req.params;
+
+  const spot = await Spot.findByPk(eventId);
+
+  if (!spot) {
+    res.status(404);
+    return res.json({
+      message: "Spot couldn't be found",
+      statusCode: 404,
+    });
+  }
+
+  let Reviews = await Review.findAll({
+    attributes: [
+      "id",
+      "userId",
+      "spotId",
+      "review",
+      "stars",
+      "createdAt",
+      "updatedAt",
+    ],
+    include: [
+      {
+        model: User,
+        as: "User",
+        attributes: ["id", "firstName", "lastName"],
+      },
+      {
+        model: Image,
+        attributes: ["id", "imageableId", "url"],
+      },
+    ],
+  });
+
+  return res.json({
+    Reviews,
+  });
+});
 
 router.post("/:spotId/images", requireAuth, async (req, res) => {
   const { user } = req;
