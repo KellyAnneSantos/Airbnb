@@ -87,9 +87,6 @@ module.exports = (sequelize, DataTypes) => {
           len: [60, 60],
         },
       },
-      previewImage: {
-        type: DataTypes.STRING(256),
-      },
     },
     {
       sequelize,
