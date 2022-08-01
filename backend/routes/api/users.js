@@ -1,7 +1,7 @@
 const express = require("express");
 
 const { setTokenCookie, requireAuth } = require("../../utils/auth");
-const { Image, User, Spot, sequelize } = require("../../db/models");
+const { Image, User, Review, Spot, sequelize } = require("../../db/models");
 
 const { check } = require("express-validator");
 const { handleValidationErrors } = require("../../utils/validation");
@@ -94,6 +94,56 @@ router.get("/users/current/spots", requireAuth, async (req, res) => {
 
   return res.json({
     Spots,
+  });
+});
+
+router.get("/users/current/reviews", requireAuth, async (req, res) => {
+  const { user } = req;
+
+  const Reviews = await Review.findAll({
+    where: {
+      userId: user.id,
+    },
+    include: [
+      {
+        model: User,
+        as: "User",
+        attributes: ["id", "firstName", "lastName"],
+      },
+      {
+        model: Spot,
+        as: "Spot",
+        attributes: [
+          "id",
+          "ownerId",
+          "address",
+          "city",
+          "state",
+          "country",
+          "lat",
+          "lng",
+          "name",
+          "price",
+        ],
+      },
+      {
+        model: Image,
+        attributes: ["id", "imageableId", "url"],
+      },
+    ],
+    attributes: [
+      "id",
+      "userId",
+      "spotId",
+      "revies",
+      "stars",
+      "createdAt",
+      "updatedAt",
+    ],
+  });
+
+  return res.json({
+    Reviews,
   });
 });
 
