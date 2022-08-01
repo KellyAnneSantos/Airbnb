@@ -6,7 +6,7 @@ const spotsRouter = require("./spots.js");
 // const bookingsRouter = require("./bookings.js");
 // const imagesRouter = require("./images.js");
 
-router.use("/session", sessionRouter);
+router.use(sessionRouter);
 
 router.use(usersRouter);
 
