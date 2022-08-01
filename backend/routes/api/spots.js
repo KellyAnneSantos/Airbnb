@@ -6,12 +6,12 @@ const { Spot, sequelize } = require("../../db/models");
 
 router.get("/", async (req, res) => {
   const Spots = await Spot.findAll({
-    // include: [
-    //   {
-    //     model: Image,
-    //     attributes: [],
-    //   },
-    // ],
+    include: [
+      {
+        model: Image,
+        attributes: [],
+      },
+    ],
     attributes: [
       "id",
       "ownerId",
@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
       "price",
       "createdAt",
       "updatedAt",
-      // [sequelize.col("Image.url"), "previewImage"],
+      [sequelize.col("Image.url"), "previewImage"],
     ],
   });
   return res.json({
