@@ -93,8 +93,9 @@ router.get("/:spotId/reviews", async (req, res) => {
   });
 });
 
-router.get("/:spotId/bookings", async (req, res) => {
+router.get("/:spotId/bookings", requireAuth, async (req, res) => {
   const { spotId } = req.params;
+  const { user } = req;
 
   const spot = await Spot.findByPk(spotId);
 
@@ -108,6 +109,9 @@ router.get("/:spotId/bookings", async (req, res) => {
 
   if (spot.ownerId !== user.id) {
     let Bookings = await Booking.findAll({
+      where: {
+        userId: user.id,
+      },
       attributes: ["spotId", "startDate", "endDate"],
     });
 
@@ -116,6 +120,9 @@ router.get("/:spotId/bookings", async (req, res) => {
     });
   } else {
     let Bookings = await Booking.findAll({
+      where: {
+        userId: user.id,
+      },
       attributes: [
         "id",
         "userId",
