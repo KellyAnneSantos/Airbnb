@@ -207,6 +207,79 @@ router.post(
   }
 );
 
+router.post(
+  "/:spotId/bookings",
+  requireAuth,
+  validateBooking,
+  async (req, res) => {
+    const { user } = req;
+    let { spotId } = req.params;
+    let { startDate, endDate } = req.body;
+
+    spotId = parseInt(spotId);
+
+    const spot = await Spot.findByPk(spotId);
+
+    if (!spot) {
+      res.status(404);
+      return res.json({
+        message: "Spot couldn't be found",
+        statusCode: 404,
+      });
+    }
+
+    const booking = await Booking.findOne({
+      where: {
+        startDate,
+      },
+    });
+
+    if (booking) {
+      res.status(403);
+      return res.json({
+        message: "Start date conflicts with an existing booking",
+        statusCode: 403,
+      });
+    }
+
+    const bookings = await Booking.findOne({
+      where: {
+        endDate,
+      },
+    });
+
+    if (bookings) {
+      res.status(403);
+      return res.json({
+        message: "End date conflicts with an existing booking",
+        statusCode: 403,
+      });
+    }
+
+    const newBooking = await Booking.create({
+      spotId,
+      userId: user.id,
+      startDate,
+      endDate,
+    });
+
+    let id = newBooking.id;
+    let userId = newBooking.userId;
+    let createdAt = newBooking.createdAt;
+    let updatedAt = newBooking.updatedAt;
+
+    return res.json({
+      id,
+      spotId,
+      userId,
+      startDate,
+      endDate,
+      createdAt,
+      updatedAt,
+    });
+  }
+);
+
 router.post("/:spotId/images", requireAuth, async (req, res) => {
   const { user } = req;
   let { spotId } = req.params;
