@@ -163,7 +163,7 @@ router.get("/users/current/bookings", requireAuth, async (req, res) => {
     },
     include: [
       {
-        model: Spots,
+        model: Spot,
         as: "Spot",
         attributes: [
           "id",
