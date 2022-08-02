@@ -2,7 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 
-const { Booking } = require("../../db/models");
+const { Booking, Spot } = require("../../db/models");
 const { requireAuth } = require("../../utils/auth");
 const { check } = require("express-validator");
 const { handleValidationErrors } = require("../../utils/validation");
