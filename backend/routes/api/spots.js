@@ -52,6 +52,13 @@ const validateReview = [
   handleValidationErrors,
 ];
 
+const validateBooking = [
+  check("endDate")
+    .custom((value, { req }) => value >= req.body.startDate)
+    .withMessage("endDate cannot be on or before startDate"),
+  handleValidationErrors,
+];
+
 router.get("/:spotId/reviews", async (req, res) => {
   const { spotId } = req.params;
 
