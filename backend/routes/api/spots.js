@@ -58,6 +58,42 @@ const validateBooking = [
   handleValidationErrors,
 ];
 
+const validateQuery = [
+  check("page")
+    .optional({ nullable: true })
+    .isInt({ min: 0 })
+    .withMessage("Page must be greater than or equal to 0"),
+  check("size")
+    .optional({ nullable: true })
+    .isInt({ min: 0 })
+    .withMessage("Size must be greater than or equal to 0"),
+  check("maxLat")
+    .optional({ nullable: true })
+    .isFloat({ max: 90.0 })
+    .withMessage("Maximum latitude is invalid"),
+  check("minLat")
+    .optional({ nullable: true })
+    .isFloat({ min: -90.0 })
+    .withMessage("Minimum latitude is invalid"),
+  check("minLng")
+    .optional({ nullable: true })
+    .isFloat({ min: -180.0 })
+    .withMessage("Minimum longitude is invalid"),
+  check("maxLng")
+    .optional({ nullable: true })
+    .isFloat({ max: 180.0 })
+    .withMessage("Maximum longitude is invalid"),
+  check("minPrice")
+    .optional({ nullable: true })
+    .isFloat({ min: 0.0 })
+    .withMessage("Minimum price must be greater than or equal to 0"),
+  check("maxPrice")
+    .optional({ nullable: true })
+    .isFloat({ min: 0.0 })
+    .withMessage("Minimum price must be greater than or equal to 0"),
+  handleValidationErrors,
+];
+
 router.get("/:spotId/reviews", async (req, res) => {
   const { spotId } = req.params;
 
@@ -461,8 +497,79 @@ router.delete("/:spotId", requireAuth, async (req, res) => {
   }
 });
 
-router.get("/", async (req, res) => {
+router.get("/", validateQuery, async (req, res) => {
+  let { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } =
+    req.query;
+
+  let where = {};
+  let pagination = {};
+
+  if (!page) {
+    page = 0;
+  }
+
+  if (!size) {
+    size = 20;
+  }
+
+  if (Number.isNaN(page) || page < 0 || page > 10) {
+    page = 0;
+  } else {
+    page = page;
+  }
+
+  if (Number.isNaN(size) || size < 0 || size > 20) {
+    size = 20;
+  } else {
+    size = size;
+  }
+
+  if (page > 0) {
+    pagination.limit = size;
+    pagination.offset = size * (page - 1);
+  } else {
+    pagination.limit = size;
+  }
+
+  if (minLat) {
+    where.lat = {
+      [Op.gte]: minLat,
+    };
+  }
+
+  if (maxLat) {
+    where.lat = {
+      [Op.lte]: maxLat,
+    };
+  }
+
+  if (minLng) {
+    where.lng = {
+      [Op.gte]: minLng,
+    };
+  }
+
+  if (maxLng) {
+    where.lng = {
+      [Op.lte]: maxLng,
+    };
+  }
+
+  if (minPrice) {
+    where.price = {
+      [Op.gte]: minPrice,
+    };
+  }
+
+  if (maxPrice) {
+    where.price = {
+      [Op.lte]: maxPrice,
+    };
+  }
+
   const Spots = await Spot.findAll({
+    where,
+    ...pagination,
     include: [
       {
         model: Image,
@@ -488,6 +595,8 @@ router.get("/", async (req, res) => {
   });
   return res.json({
     Spots,
+    page,
+    size,
   });
 });
 
