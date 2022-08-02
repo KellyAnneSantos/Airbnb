@@ -55,4 +55,45 @@ router.put("/:bookingId", requireAuth, validateBooking, async (req, res) => {
   }
 });
 
+router.delete("/:bookingId", requireAuth, async (req, res) => {
+  const { bookingId } = req.params;
+  const { user } = req;
+
+  const booking = await Booking.findByPk(bookingId);
+
+  if (!booking) {
+    res.status(404);
+    return res.json({
+      message: "Booking couldn't be found",
+      statusCode: 404,
+    });
+  }
+
+  const date = new Date(startDate);
+  const today = new Date();
+  if (date < today) {
+    res.status(403);
+    return res.json({
+      message: "Bookings that have been started can't be deleted",
+      statusCode: 403,
+    });
+  }
+
+  const spots = Spot.findByPk(booking.spotId);
+
+  if (user.id === booking.userId || user.id === spots.ownerId) {
+    await booking.destroy();
+
+    return res.json({
+      message: "Successfully deleted",
+    });
+  } else {
+    res.status(403);
+    return res.json({
+      message: "Forbidden",
+      statusCode: 403,
+    });
+  }
+});
+
 module.exports = router;
