@@ -94,6 +94,16 @@ const validateQuery = [
   handleValidationErrors,
 ];
 
+const mapSpots = async (spots) => {
+  spots.forEach((spot) => {
+    spot.dataValues.previewImage = spot.dataValues.Images.map((image) => {
+      return image.url;
+    });
+    delete spot.dataValues.Images;
+  });
+  return spots;
+};
+
 router.get("/:spotId/reviews", async (req, res) => {
   const { spotId } = req.params;
 
@@ -567,34 +577,21 @@ router.get("/", validateQuery, async (req, res) => {
     };
   }
 
-  const Spots = await Spot.findAll({
-    where,
+  const spots = await Spot.findAll({
+    where: { ...where },
     ...pagination,
     include: [
       {
         model: Image,
-        attributes: [],
+        attributes: ["url"],
       },
     ],
-    attributes: [
-      "id",
-      "ownerId",
-      "address",
-      "city",
-      "state",
-      "country",
-      "lat",
-      "lng",
-      "name",
-      "description",
-      "price",
-      "createdAt",
-      "updatedAt",
-      [sequelize.col("Images.url"), "previewImage"],
-    ],
   });
+
+  const spotPreviews = await mapSpots(spots);
+
   return res.json({
-    Spots,
+    Spots: spotPreviews,
     page,
     size,
   });
