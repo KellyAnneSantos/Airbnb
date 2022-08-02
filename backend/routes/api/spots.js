@@ -2,10 +2,18 @@ const express = require("express");
 
 const router = express.Router();
 
-const { Image, Review, Spot, User, sequelize } = require("../../db/models");
+const {
+  Booking,
+  Image,
+  Review,
+  Spot,
+  User,
+  sequelize,
+} = require("../../db/models");
 const { requireAuth } = require("../../utils/auth");
 const { check } = require("express-validator");
 const { handleValidationErrors } = require("../../utils/validation");
+const user = require("../../db/models/user");
 
 const validateSpot = [
   check("address")
@@ -83,6 +91,53 @@ router.get("/:spotId/reviews", async (req, res) => {
   return res.json({
     Reviews,
   });
+});
+
+router.get("/:spotId/bookings", async (req, res) => {
+  const { spotId } = req.params;
+
+  const spot = await Spot.findByPk(spotId);
+
+  if (!spot) {
+    res.status(404);
+    return res.json({
+      message: "Spot couldn't be found",
+      statusCode: 404,
+    });
+  }
+
+  if (spot.ownerId !== user.id) {
+    let Bookings = await Booking.findAll({
+      attributes: ["spotId", "startDate", "endDate"],
+    });
+
+    return res.json({
+      Bookings,
+    });
+  } else {
+    let Bookings = await Booking.findAll({
+      attributes: [
+        "id",
+        "userId",
+        "spotId",
+        "startDate",
+        "endDate",
+        "createdAt",
+        "updatedAt",
+      ],
+      include: [
+        {
+          model: User,
+          as: "User",
+          attributes: ["id", "firstName", "lastName"],
+        },
+      ],
+    });
+
+    return res.json({
+      Bookings,
+    });
+  }
 });
 
 router.post(
