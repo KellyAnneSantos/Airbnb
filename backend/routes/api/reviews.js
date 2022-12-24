@@ -70,7 +70,7 @@ router.put("/:reviewId", requireAuth, validateReview, async (req, res) => {
   const { review, stars } = req.body;
   const { user } = req;
 
-  const reviews = await Review.findByPk(groupId);
+  const reviews = await Review.findByPk(reviewId);
 
   if (!reviews) {
     res.status(404);
